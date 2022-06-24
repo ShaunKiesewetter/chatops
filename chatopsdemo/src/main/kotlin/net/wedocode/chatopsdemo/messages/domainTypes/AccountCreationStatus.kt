@@ -1,7 +1,9 @@
 package net.wedocode.chatopsdemo.messages.domainTypes
 
 enum class AccountCreationStatus {
-    CREATING_RESOURCE,
+    INITIALIZING,
+    SETTING_UP_PARTNER,
+    RESUMING,
     WAITING_FOR_ACTION,
     UNSUCCESSFUL,
     SUCCESSFUL

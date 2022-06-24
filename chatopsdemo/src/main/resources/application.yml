@@ -1,0 +1,39 @@
+
+spring:
+  application:
+    name: ChatOpsDemo
+  datasource:
+    url: jdbc:postgresql://homeserver:5437/chatOpsDemo
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+    driverClassName: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: ${PORT:8080}
+
+axon:
+  axonserver:
+    servers: homeserver
+
+
+cloud:
+  aws:
+    credentials:
+      # These Creds are no longer valid
+      access-key: AKIAVFF5XMZZH2N4U26B
+      secret-key: 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
+
+    region:
+      static: us-east-1
+    stack:
+      auto: false # Automatic stack detection
+    sns:
+      enabled: true
+    sqs:
+      enabled: true
+
+

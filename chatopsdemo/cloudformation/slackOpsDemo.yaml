@@ -1,0 +1,120 @@
+#Simpley reversed engineered using Former 2 The Slack Channel Config is missing
+AWSTemplateFormatVersion: "2010-09-09"
+Metadata:
+  Generator: "former2"
+Description: ""
+Resources:
+  SNSTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: "Banking Operations Topic"
+      TopicName: "banking-ops-topic"
+
+  SNSTopic2:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: "Banking operations notifications distribution"
+      TopicName: "Banking-Ops-Notification"
+
+  SNSTopic3:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: "Banking SQS topic"
+      TopicName: "banking-sqs-topic"
+
+  SQSQueue:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      DelaySeconds: "0"
+      MaximumMessageSize: "262144"
+      MessageRetentionPeriod: "345600"
+      ReceiveMessageWaitTimeSeconds: "0"
+      VisibilityTimeout: "30"
+      QueueName: "Banking-ops-notification-queue"
+
+  SQSQueue2:
+    Type: "AWS::SQS::Queue"
+    Properties:
+      DelaySeconds: "0"
+      MaximumMessageSize: "262144"
+      MessageRetentionPeriod: "345600"
+      ReceiveMessageWaitTimeSeconds: "0"
+      VisibilityTimeout: "30"
+      QueueName: "banking-ops-command-queue"
+
+  LambdaFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: ""
+      FunctionName: "Banking-Notifications"
+      Handler: "lambda_function.lambda_handler"
+      Architectures:
+        - "x86_64"
+      Code:
+        S3Bucket: "prod-04-2014-tasks"
+        S3Key: !Sub "/snapshots/${AWS::AccountId}/Banking-Notifications-148d0368-8a24-406a-8b9c-d8eb1bd2aa52"
+        S3ObjectVersion: "QmubwcLetEatT0bLfZI1jRDYXrB7GwWl"
+      MemorySize: 128
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/Banking-Notifications-role-t783xfy5"
+      Runtime: "python3.8"
+      Timeout: 3
+      TracingConfig:
+        Mode: "PassThrough"
+      EphemeralStorage:
+        Size: 512
+
+  LambdaFunction2:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: ""
+      FunctionName: "Create-Account"
+      Handler: "lambda_function.lambda_handler"
+      Architectures:
+        - "x86_64"
+      Code:
+        S3Bucket: "prod-04-2014-tasks"
+        S3Key: !Sub "/snapshots/${AWS::AccountId}/Create-Account-5b6e3653-d8b8-446a-821d-61be7b2e4371"
+        S3ObjectVersion: "M1JnDvdc32KUYaJSvSJQhw9N3y6XG4BD"
+      MemorySize: 128
+      Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/banking-resume-role-8kzypxp0"
+      Runtime: "python3.8"
+      Timeout: 3
+      TracingConfig:
+        Mode: "PassThrough"
+      EphemeralStorage:
+        Size: 512
+
+  SNSTopicPolicy:
+    Type: "AWS::SNS::TopicPolicy"
+    Properties:
+      PolicyDocument: !Sub "{\"Version\":\"2008-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__default_statement_ID\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"SNS:GetTopicAttributes\",\"SNS:SetTopicAttributes\",\"SNS:AddPermission\",\"SNS:RemovePermission\",\"SNS:DeleteTopic\",\"SNS:Subscribe\",\"SNS:ListSubscriptionsByTopic\",\"SNS:Publish\"],\"Resource\":\"${SNSTopic}\",\"Condition\":{\"StringEquals\":{\"AWS:SourceOwner\":\"${AWS::AccountId}\"}}},{\"Sid\":\"AWSEvents_Banking-Service-Rule_Id63203963-c1af-4df2-bf5d-b6a6d3b14a9f\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sns:Publish\",\"Resource\":\"${SNSTopic}\"}]}"
+      Topics:
+        - !Ref SNSTopic
+
+  SNSTopicPolicy2:
+    Type: "AWS::SNS::TopicPolicy"
+    Properties:
+      PolicyDocument: !Sub "{\"Version\":\"2008-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__default_statement_ID\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"SNS:GetTopicAttributes\",\"SNS:SetTopicAttributes\",\"SNS:AddPermission\",\"SNS:RemovePermission\",\"SNS:DeleteTopic\",\"SNS:Subscribe\",\"SNS:ListSubscriptionsByTopic\",\"SNS:Publish\"],\"Resource\":\"${SNSTopic2}\",\"Condition\":{\"StringEquals\":{\"AWS:SourceOwner\":\"${AWS::AccountId}\"}}}]}"
+      Topics:
+        - !Ref SNSTopic2
+
+  SNSTopicPolicy3:
+    Type: "AWS::SNS::TopicPolicy"
+    Properties:
+      PolicyDocument: !Sub "{\"Version\":\"2008-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__default_statement_ID\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"SNS:GetTopicAttributes\",\"SNS:SetTopicAttributes\",\"SNS:AddPermission\",\"SNS:RemovePermission\",\"SNS:DeleteTopic\",\"SNS:Subscribe\",\"SNS:ListSubscriptionsByTopic\",\"SNS:Publish\"],\"Resource\":\"${SNSTopic3}\",\"Condition\":{\"StringEquals\":{\"AWS:SourceOwner\":\"${AWS::AccountId}\"}}}]}"
+      Topics:
+        - !Ref SNSTopic3
+
+  SQSQueuePolicy:
+    Type: "AWS::SQS::QueuePolicy"
+    Properties:
+      PolicyDocument: !Sub "{\"Version\":\"2008-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SQSQueue}\"},{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"sns.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SQSQueue}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"${SNSTopic2}\"}}}]}"
+      Queues:
+        - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SQSQueue.QueueName}"
+
+  SQSQueuePolicy2:
+    Type: "AWS::SQS::QueuePolicy"
+    Properties:
+      PolicyDocument: !Sub "{\"Version\":\"2008-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SQSQueue2}\"},{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"sns.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SQSQueue2}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"${SNSTopic3}\"}}}]}"
+      Queues:
+        - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SQSQueue2.QueueName}"
