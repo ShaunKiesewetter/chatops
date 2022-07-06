@@ -24,8 +24,8 @@ cloud:
   aws:
     credentials:
       # These Creds are no longer valid
-      access-key: AKIAVFF5XMZZH2N4U26B
-      secret-key: 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
+      access-key:
+      secret-key:
 
     region:
       static: us-east-1
